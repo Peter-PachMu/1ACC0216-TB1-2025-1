@@ -251,7 +251,131 @@ ggplot(reservas_mensuales, aes(x = reserva_fecha, y = cantidad)) +
        y = "Cantidad de Reservas") +
   theme_minimal()
 
+cat('¿Cuáles son las temporadas de reservas (alta, media, baja)?')
 
+df <- df %>%
+  mutate(mes = month(reservation_status_date, label = TRUE, abbr = FALSE))
+
+reservas_por_mes <- df %>%
+  group_by(mes) %>%
+  summarise(reservas = n())
+
+cortes <- quantile(reservas_por_mes$reservas, probs = c(0.25, 0.75))
+
+reservas_por_mes <- reservas_por_mes %>%
+  mutate(
+    temporada = case_when(
+      reservas < cortes[1] ~ "Baja",
+      reservas >= cortes[1] & reservas <= cortes[2] ~ "Media",
+      reservas > cortes[2] ~ "Alta"
+    )
+  )
+
+reservas_por_mes
+
+ggplot(reservas_por_mes, aes(x = mes, y = reservas, fill = temporada)) +
+  geom_col() +
+  scale_fill_manual(values = c("Baja" = "#d7191c", "Media" = "#fdae61", "Alta" = "#1a9641")) +
+  labs(title = "Reservas por Mes y Temporada", x = "Mes", y = "Cantidad de Reservas", fill = "Temporada") +
+  theme_minimal()
+
+cat('¿Cuál es la duración promedio de las estancias por tipo de hotel? ')
+
+duracion_promedio <- df %>%
+  group_by(hotel) %>%
+  summarise(duracion_media = mean(stay_total, na.rm = TRUE))
+
+ggplot(duracion_promedio, aes(x = hotel, y = duracion_media, fill = hotel)) +
+  geom_col() +
+  labs(title = "Duración Promedio de Estancia por Tipo de Hotel", x = "Hotel", y = "Días Promedio") +
+  theme_minimal()
+
+cat('¿Cuántas reservas incluyen niños y/o bebés?')
+
+df <- df %>%
+  mutate(incluye_ninios = ifelse(children > 0 | babies > 0, "Con Niños/Bebés", "Sin Niños/Bebés"))
+
+reservas_ninios_bebes <- df %>%
+  group_by(incluye_ninios) %>%
+  summarise(cantidad = n()) %>%
+  arrange(desc(cantidad))
+
+reservas_ninios_bebes
+
+ggplot(reservas_ninios_bebes, aes(x = incluye_ninios, y = cantidad, fill = incluye_ninios)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Número de Reservas con y Sin Niños/Bebés",
+       x = "Tipo de Reserva",
+       y = "Cantidad de Reservas") +
+  scale_fill_manual(values = c("Con Niños/Bebés" = "#FF6347", "Sin Niños/Bebés" = "#4682B4")) +
+  theme_minimal()
+
+cat('¿Es importante contar con espacios de estacionamiento? ')
+
+parking_stats <- df %>%
+  mutate(necesita_parking = ifelse(required_car_parking_spaces > 0, "Sí", "No")) %>%
+  group_by(necesita_parking) %>%
+  summarise(
+    cantidad = n(),
+    porcentaje = round(100 * cantidad / nrow(df), 1)
+  )
+
+parking_stats
+
+
+ggplot(parking_stats, aes(x = necesita_parking, y = cantidad, fill = necesita_parking)) +
+  geom_col() +
+  geom_text(aes(label = paste0(cantidad, " (", porcentaje, "%)")), 
+            vjust = -0.5, size = 3.5) +
+  scale_fill_manual(values = c("No" = "#66C2A5", "Sí" = "#FC8D62")) +
+  labs(title = "Reservas que Requieren Estacionamiento", x = "¿Necesita Parking?", y = "Cantidad de Reservas") +
+  theme_minimal()
+
+
+cat('¿En qué meses del año se producen más cancelaciones de reservas?')
+
+cancelaciones_mes <- df %>%
+  filter(is_canceled == 1) %>%
+  group_by(arrival_date_month) %>%
+  summarise(canceladas = n())
+
+cancelaciones_mes$arrival_date_month <- factor(cancelaciones_mes$arrival_date_month, levels = month.name)
+
+ggplot(cancelaciones_mes, aes(x = arrival_date_month, y = canceladas)) +
+  geom_col(fill = "#e31a1c") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Cancelaciones por Mes", x = "Mes", y = "Cancelaciones")
+
+
+cat('Pregunta del equipo')
+cat('¿Cuales es total 10 de los paises con mas reservas')
+
+# Crear dataset con Top 10 países
+top_paises <- df %>%
+  count(country, sort = TRUE) %>%
+  slice_max(n, n = 10)
+
+top_paises
+
+# Gráfico
+g8 <- ggplot(top_paises, aes(x = reorder(country, n), y = n, fill = country)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top 10 Países con Más Reservas",
+    x = "País",
+    y = "Cantidad de Reservas"
+  ) +
+  theme_cowplot() +
+  theme(legend.position = "none")  # Quita leyenda si no la necesitas
+
+g8
+
+ggplot(top_paises, aes(x = "", y = n, fill = country)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Distribución de Reservas por País") +
+  theme_void()
 
 
 
