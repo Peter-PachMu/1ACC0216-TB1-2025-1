@@ -84,11 +84,9 @@ Incluyen información temporal que permite el análisis de tendencias y estacion
 
 A partir del análisis exploratorio, se destacan los siguientes hallazgos:
 
-- E  
-- D  
-- C  
-- B 
-- A
+- El análisis de la variable de llegada (arrival_date) permitió observar una marcada estacionalidad en las reservas hoteleras, con un pico significativo en los meses de verano, particularmente julio y agosto. Esta tendencia sugiere una alta concentración de demanda durante la temporada vacacional, tanto para el "Resort Hotel" como para el "City Hotel". Además, se registró un aumento proporcional de cancelaciones en esos mismos meses, lo que evidencia la necesidad de prever fluctuaciones no solo en reservas efectivas, sino también en cancelaciones potenciales. 
+- Al analizar la variable (is_canceled) en conjunto con market_segment y customer_type, se identificó que los clientes del segmento "Online TA" y del tipo "Transient" son los más propensos a cancelar. Esto podría estar relacionado con la facilidad para realizar reservas sin compromiso en plataformas digitales, o con la naturaleza espontánea de los viajeros individuales. También se evidenció que el "City Hotel" presenta un índice de cancelación más alto en comparación con el "Resort Hotel", lo que puede estar vinculado a su orientación a clientes de corta estadía o negocios.  
+- Se encontró una cantidad relevante de reservas donde el tipo de habitación asignado no coincidió con el reservado originalmente, lo cual puede generar insatisfacción en los huéspedes y comprometer la percepción del servicio. Este patrón fue más frecuente en el "City Hotel", lo que podría deberse a sobreventa, descoordinación en la gestión de habitaciones, o políticas de upgrade automáticas sin confirmación previa. Esta inconsistencia afecta negativamente la confianza del cliente y puede influir en la fidelización.  
 
 ---
 
